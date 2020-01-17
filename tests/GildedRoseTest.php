@@ -53,4 +53,36 @@ final class GildedRoseTest extends TestCase
         $this->assertEquals(4, $item->sellIn);
     }
 
+    /** @test */
+    public function updates_brie_items_before_the_sell_date_with_max_quality()
+    {
+        $item = GildedRose::of('Aged Brie', 50, 5);
+
+        $item->tick();
+
+        $this->assertEquals(50, $item->quality);
+        $this->assertEquals(4, $item->sellIn);
+    }
+
+    /** @test */
+    public function updates_brie_items_before_on_sell_date()
+    {
+        $item = GildedRose::of('Aged Brie', 10, 0);
+
+        $item->tick();
+
+        $this->assertEquals(12, $item->quality);
+        $this->assertEquals(-1, $item->sellIn);
+    }
+
+    /** @test */
+    public function updates_brie_items_before_on_sell_date_near_max_quality()
+    {
+        $item = GildedRose::of('Aged Brie', 49, 0);
+
+        $item->tick();
+
+        $this->assertEquals(50, $item->quality);
+        $this->assertEquals(-1, $item->sellIn);
+    }
 }
