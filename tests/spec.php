@@ -108,7 +108,7 @@ describe('Gilded Rose', function () {
                 expect($item->sellIn)->toBe(-11);
             });
 
-             it ('updates Briem items after the sell date with maximum quality', function () {
+            it ('updates Briem items after the sell date with maximum quality', function () {
                 $item = GildedRose::of('Aged Brie', 50, -10);
 
                 $item->tick();

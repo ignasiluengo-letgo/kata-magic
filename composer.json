@@ -1,10 +1,19 @@
 {
     "require-dev": {
-        "crysalead/kahlan": "^1.2"
+        "crysalead/kahlan": "^1.2",
+        "phpunit/phpunit": "^8.5"
     },
     "autoload": {
         "psr-4": {
             "App\\": "src"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Test\\App\\": "tests"
+        }
+    },
+    "config": {
+        "bin-dir": "bin"
     }
 }
