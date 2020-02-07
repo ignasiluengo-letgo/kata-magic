@@ -4,18 +4,20 @@ namespace App;
 
 class GildedRose
 {
-    const BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT = 'Backstage passes to a TAFKAL80ETC concert';
-    const SULFURAS_HAND_OF_RAGNAROS                   = 'Sulfuras, Hand of Ragnaros';
-    const AGED_BRIE                                   = 'Aged Brie';
+    private const BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT = 'Backstage passes to a TAFKAL80ETC concert';
+    private const SULFURAS_HAND_OF_RAGNAROS = 'Sulfuras, Hand of Ragnaros';
+    private const AGED_BRIE = 'Aged Brie';
+    private const NORMAL = 'normal';
+
     public $name;
     public $quality;
     public $sellIn;
 
     private function __construct($name, $quality, $sellIn)
     {
-        $this->name    = $name;
+        $this->name = $name;
         $this->quality = $quality;
-        $this->sellIn  = $sellIn;
+        $this->sellIn = $sellIn;
     }
 
     public static function of($name, $quality, $sellIn)
@@ -25,64 +27,59 @@ class GildedRose
 
     public function tick()
     {
+        if ($this->isSulfuras()) {
+            $this->sulfurasTick();
+        }
+
         if ($this->isNormal()) {
-            if ($this->qualityHigherThan0()) {
-                $this->decreaseQuality();
-            }
-
-            $this->decreaseExpiration();
-
-            if ($this->isExpired()) {
-                if ($this->qualityHigherThan0()) {
-                    $this->decreaseQuality();
-                }
-            }
+            $this->normalTick();
         }
 
-        if ($this->name == self::BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT) {
-            if ($this->qualityLessThan50()) {
-                $this->increaseQuality();
-            }
-
-            if ($this->sellinLessThan11() and $this->qualityLessThan50()) {
-                $this->increaseQuality();
-            }
-            if ($this->sellinLessThan6() and $this->qualityLessThan50()) {
-                $this->increaseQuality();
-            }
-
-            $this->decreaseExpiration();
-
-            if ($this->isExpired()) {
-                $this->quality = 0;
-            }
+        if ($this->isBackStage()) {
+            $this->tickBackStage();
         }
 
-        if ($this->name === self::AGED_BRIE) {
-            if ($this->qualityLessThan50()) {
-                $this->increaseQuality();
-            }
-
-            $this->decreaseExpiration();
-
-            if ($this->isExpired()) {
-                if ($this->qualityLessThan50()) {
-                    $this->increaseQuality();
-                }
-            }
+        if ($this->isAgedBrie()) {
+            $this->tickAgedBrie();
         }
     }
 
     private
-    function qualityLessThan50(): bool
+    function isNormal(): bool
     {
-        return $this->quality < 50;
+        return self::NORMAL === $this->name;
     }
 
     private
-    function qualityHigherThan0(): bool
+    function decreaseQuality(): void
     {
-        return $this->quality > 0;
+        if ($this->quality <= 0) {
+            return;
+        }
+
+        $this->quality = $this->quality - 1;
+    }
+
+    private
+    function decreaseExpiration(): void
+    {
+        $this->sellIn = $this->sellIn - 1;
+    }
+
+    private
+    function isExpired(): bool
+    {
+        return $this->sellIn < 0;
+    }
+
+    private
+    function increaseQuality(): void
+    {
+        if ($this->quality >= 50) {
+            return;
+        }
+
+        $this->quality = $this->quality + 1;
     }
 
     private
@@ -97,35 +94,62 @@ class GildedRose
         return $this->sellIn < 6;
     }
 
-    private
-    function decreaseQuality(): void
+    private function normalTick(): void
     {
-        $this->quality = $this->quality - 1;
+        $this->decreaseQuality();
+        $this->decreaseExpiration();
+
+        if ($this->isExpired()) {
+            $this->decreaseQuality();
+        }
     }
 
-    private
-    function increaseQuality(): void
+    private function tickBackStage(): void
     {
-        $this->quality = $this->quality + 1;
+        $this->increaseQuality();
+
+        if ($this->sellinLessThan11()) {
+            $this->increaseQuality();
+        }
+        if ($this->sellinLessThan6()) {
+            $this->increaseQuality();
+        }
+
+        $this->decreaseExpiration();
+
+        if ($this->isExpired()) {
+            $this->quality = 0;
+        }
     }
 
-    private
-    function isExpired(): bool
+    private function tickAgedBrie(): void
     {
-        return $this->sellIn < 0;
+        $this->increaseQuality();
+
+        $this->decreaseExpiration();
+
+        if ($this->isExpired()) {
+            $this->increaseQuality();
+        }
     }
 
-    private
-    function decreaseExpiration(): void
+    private function isSulfuras(): bool
     {
-        $this->sellIn = $this->sellIn - 1;
+        return self::SULFURAS_HAND_OF_RAGNAROS === $this->name;
     }
 
-    private
-    function isNormal(): bool
+    private function sulfurasTick(): void
     {
-        return $this->name != self::AGED_BRIE and
-               $this->name != self::BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT and
-               $this->name != self::SULFURAS_HAND_OF_RAGNAROS;
+        return;
+    }
+
+    private function isBackStage(): bool
+    {
+        return self::BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT === $this->name;
+    }
+
+    private function isAgedBrie(): bool
+    {
+        return self::AGED_BRIE === $this->name;
     }
 }
