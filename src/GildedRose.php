@@ -29,22 +29,32 @@ class GildedRose
             if ($this->qualityHigherThan0()) {
                 $this->decreaseQuality();
             }
+
+            $this->decreaseExpiration();
+
+            if ($this->isExpired()) {
+                if ($this->qualityHigherThan0()) {
+                    $this->decreaseQuality();
+                }
+            }
         }
 
         if ($this->name == self::BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT) {
             if ($this->qualityLessThan50()) {
                 $this->increaseQuality();
+            }
 
-                if ($this->sellinLessThan11()) {
-                    if ($this->qualityLessThan50()) {
-                        $this->increaseQuality();
-                    }
-                }
-                if ($this->sellinLessThan6()) {
-                    if ($this->qualityLessThan50()) {
-                        $this->increaseQuality();
-                    }
-                }
+            if ($this->sellinLessThan11() and $this->qualityLessThan50()) {
+                $this->increaseQuality();
+            }
+            if ($this->sellinLessThan6() and $this->qualityLessThan50()) {
+                $this->increaseQuality();
+            }
+
+            $this->decreaseExpiration();
+
+            if ($this->isExpired()) {
+                $this->quality = 0;
             }
         }
 
@@ -52,20 +62,10 @@ class GildedRose
             if ($this->qualityLessThan50()) {
                 $this->increaseQuality();
             }
-        }
 
-        if ($this->name != self::SULFURAS_HAND_OF_RAGNAROS) {
             $this->decreaseExpiration();
-        }
 
-        if ($this->isExpired()) {
-            if ($this->isNormal() and $this->qualityHigherThan0()) {
-                $this->decreaseQuality();
-            }
-            if ($this->name == self::BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT) {
-                $this->quality = 0;
-            }
-            if ($this->name === self::AGED_BRIE) {
+            if ($this->isExpired()) {
                 if ($this->qualityLessThan50()) {
                     $this->increaseQuality();
                 }
@@ -73,47 +73,56 @@ class GildedRose
         }
     }
 
-    private function qualityLessThan50(): bool
+    private
+    function qualityLessThan50(): bool
     {
         return $this->quality < 50;
     }
 
-    private function qualityHigherThan0(): bool
+    private
+    function qualityHigherThan0(): bool
     {
         return $this->quality > 0;
     }
 
-    private function sellinLessThan11(): bool
+    private
+    function sellinLessThan11(): bool
     {
         return $this->sellIn < 11;
     }
 
-    private function sellinLessThan6(): bool
+    private
+    function sellinLessThan6(): bool
     {
         return $this->sellIn < 6;
     }
 
-    private function decreaseQuality(): void
+    private
+    function decreaseQuality(): void
     {
         $this->quality = $this->quality - 1;
     }
 
-    private function increaseQuality(): void
+    private
+    function increaseQuality(): void
     {
         $this->quality = $this->quality + 1;
     }
 
-    private function isExpired(): bool
+    private
+    function isExpired(): bool
     {
         return $this->sellIn < 0;
     }
 
-    private function decreaseExpiration(): void
+    private
+    function decreaseExpiration(): void
     {
         $this->sellIn = $this->sellIn - 1;
     }
 
-    private function isNormal(): bool
+    private
+    function isNormal(): bool
     {
         return $this->name != self::AGED_BRIE and
                $this->name != self::BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT and
